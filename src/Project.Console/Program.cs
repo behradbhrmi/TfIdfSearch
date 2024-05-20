@@ -7,14 +7,18 @@ namespace University.ConsoleApp;
 
 public class Program
 {
-    private static ProgramApi _program = new ProgramApi();
+
     static void Main(string[] args)
     {
-        var context = new ApplicationDbContext();
-        context.Database.Migrate();
-        //context.Database.EnsureCreated();
+
+        var _context = new ApplicationDbContext();
+        if (_context.Database.EnsureCreated()) 
+            _context.Database.Migrate();
+
+
         while (true)
         {
+            var _program = new ProgramApi();
             _program.LoadAllPathForSearch();
             Console.Clear();
             Console.WriteLine("==================Menu==================");
@@ -42,6 +46,7 @@ public class Program
     {
         while (true)
         {
+            var _program = new ProgramApi();
             Console.Clear();
             Console.WriteLine("==================Search==================");
             Console.WriteLine(">Enter a text for search or 0 to exit");
@@ -98,6 +103,7 @@ public class Program
     {
         while (true)
         {
+            var _program = new ProgramApi();
             Console.Clear();
             Console.WriteLine("==================Settings==================");
             Console.WriteLine(">Enter a number ");
@@ -123,6 +129,7 @@ public class Program
     {
         while (true)
         {
+            var _program = new ProgramApi();
             var dirs = _program.ReadAllPathForSearch();
             Console.Clear();
             Console.WriteLine("==================Directories==================");

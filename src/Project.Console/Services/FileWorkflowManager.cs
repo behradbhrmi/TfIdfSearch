@@ -8,14 +8,12 @@ namespace University.ConsoleApp.Services;
 public class FileWorkflowManager : IFileWorkflowManager
 {
     public static List<string> docs = [];
-    readonly private ApplicationDbContext _context;
     static List<DirectoryModel> _paths;
     static List<string> _acceptableExtensions;
 
-    public FileWorkflowManager(ApplicationDbContext context, List<DirectoryModel> paths, List<string> ext)
+    public FileWorkflowManager(List<DirectoryModel> paths, List<string> ext)
     {
         _acceptableExtensions = ext;
-        _context = context;
         _paths = paths;
     }
 
@@ -23,8 +21,8 @@ public class FileWorkflowManager : IFileWorkflowManager
     {
         try
         {
-            if (File.Exists(path) 
-                && _acceptableExtensions.Contains(Path.GetExtension(path)) 
+            if (File.Exists(path)
+                && _acceptableExtensions.Contains(Path.GetExtension(path))
                 && !docs.Contains(path))
                 docs.Add(path);
 
@@ -38,37 +36,35 @@ public class FileWorkflowManager : IFileWorkflowManager
         catch { }
     }
 
-    public void ClearDBRows()
-    {
-        _context.RemoveRange(_context.Tfidfs.ToList());
-        _context.RemoveRange(_context.Words.ToList());
-        _context.RemoveRange(_context.Files.ToList());
-        _context.SaveChanges();
-    }
+
 
     public void ScanDirectories()
     {
-        ClearDBRows();
         foreach (var dir in _paths) ExtractContentRecursively(dir.Address);
         IndexFiles();
     }
 
     public void IndexFiles()
     {
-        _context.Files.AddRange(docs.Where(x =>
+        using (var _context = new ApplicationDbContext())
         {
-            var existingFile = _context.Files.FirstOrDefault(y => y.Path.ToLower() == x.ToLower());
+            _context.Tfidfs.RemoveRange(_context.Tfidfs.ToList());
+            _context.Words.RemoveRange(_context.Words.ToList());
+            _context.Files.RemoveRange(_context.Files.ToList());
+            _context.SaveChanges();
 
-            if (existingFile == null) return true;
-            return false;
-
-        }).Select(x => new CustomFileModel() { Path = x }));
-
-        _context.SaveChanges();
+            _context.Files.AddRange(docs.Select(x => new CustomFileModel() { Path = x }));
+            _context.SaveChanges();
+        }
     }
 
     public List<CustomFileModel> FetchFiles()
     {
-        return [.. _context.Files];
+        List<CustomFileModel> files;
+        using (var _context = new ApplicationDbContext())
+        {
+            files = _context.Files.ToList();
+        }
+        return files;
     }
 }

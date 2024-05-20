@@ -6,31 +6,30 @@ namespace University.ConsoleApp.Services;
 
 public class UserSearch
 {
-    private ApplicationDbContext _context = new();
-
-    //private;
-
     public List<CustomScoreModel> FindInterception(string[] words)
     {
-        List<CustomScoreModel> allPaths = new();
-        var queryResult = _context.Words
-            .AsNoTracking()
-            .Where(x => words.Contains(x.Word))
-            .Include(x => x.Tf)
-            .ThenInclude(tf => tf.CustomFile)
-            .ToList();
-
-        foreach (var word in queryResult)
+        using (var _context = new ApplicationDbContext())
         {
-            AddPathsToListByTfidf(word, allPaths);
+            List<CustomScoreModel> allPaths = new();
+            var queryResult = _context.Words
+                .AsNoTracking()
+                .Where(x => words.Contains(x.Word))
+                .Include(x => x.Tf)
+                .ThenInclude(tf => tf.CustomFile)
+                .ToList();
+
+            foreach (var word in queryResult)
+            {
+                AddPathsToListByTfidf(word, allPaths);
+            }
+
+            var result = MergeScores(allPaths);
+
+            return result
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ToList();
         }
-
-        var result = MergeScores(allPaths);
-
-        return result
-            .Where(x => x.Score > 0)
-            .OrderByDescending(x => x.Score)
-            .ToList();
     }
 
     public List<CustomScoreModel> MergeScores(List<CustomScoreModel> allPaths)
@@ -51,14 +50,17 @@ public class UserSearch
 
     public void AddPathsToListByTfidf(WordTokenModel word, List<CustomScoreModel> allPaths)
     {
-        int documentFrequency = word.Tf.Count;
-        int documentsCount = _context.Files.Count();
-
-        var idf = (decimal)Math.Log(documentsCount / documentFrequency);
-
-        foreach (var tf in word.Tf)
+        using (var _context = new ApplicationDbContext())
         {
-            allPaths.Add(new() { Path = tf.CustomFile.Path, Score = tf.Repetation * idf });
+            int documentFrequency = word.Tf.Count;
+            int documentsCount = _context.Files.Count();
+
+            var idf = (decimal)Math.Log(documentsCount / documentFrequency);
+
+            foreach (var tf in word.Tf)
+            {
+                allPaths.Add(new() { Path = tf.CustomFile.Path, Score = tf.Repetation * idf });
+            }
         }
     }
 

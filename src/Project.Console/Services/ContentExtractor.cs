@@ -30,7 +30,7 @@ public class ContentExtractor
 
     public string ReadPdfFileContent(CustomFileModel file)
     {
-        var content = "";
+        string content = string.Empty;
 
         using (var pdfDocument = new PdfDocument(new PdfReader(file.Path)))
         {
@@ -39,6 +39,7 @@ public class ContentExtractor
             for (int i = 1; i <= totalPages; i++) content += PdfTextExtractor.GetTextFromPage(pdfDocument.GetPage(i));
 
         }
+        var temp = string.Join(" ", content.Split().Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower()).ToArray());
 
         return string.Join(" ", content.Split().Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower()).ToArray());
     }
