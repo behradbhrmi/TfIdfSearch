@@ -92,9 +92,14 @@ public class ProgramApi
 
     private void Process()
     {
+        Console.WriteLine("> Extracting Contents ...");
         ProcessContentIntoMemory();
+        var count = _wordTokens.Count;
+        Console.WriteLine($"Word Extracted: {count}");
         SaveFileContentToDb();
+        Console.WriteLine("> Extracting Finished");
         _wordTokens.Clear();
+        Console.WriteLine("> Cleaning Finished");
     }
 
 

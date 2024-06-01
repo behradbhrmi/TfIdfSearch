@@ -12,7 +12,7 @@ public class Program
     {
 
         var _context = new ApplicationDbContext();
-        if (_context.Database.EnsureCreated()) 
+        if (_context.Database.EnsureCreated())
             _context.Database.Migrate();
 
 
@@ -21,6 +21,7 @@ public class Program
             var _program = new ProgramApi();
             _program.LoadAllPathForSearch();
             Console.Clear();
+            Console.Title = "Menu";
             Console.WriteLine("==================Menu==================");
             Console.WriteLine(">Enter a number ");
             Console.WriteLine("1. Search");
@@ -46,6 +47,7 @@ public class Program
     {
         while (true)
         {
+            Console.Title = "Search";
             var _program = new ProgramApi();
             Console.Clear();
             Console.WriteLine("==================Search==================");
@@ -59,10 +61,10 @@ public class Program
             if (string.IsNullOrEmpty(userSelection)) continue;
 
             var result = _program.Search(userSelection);
+            Console.Title = $"Result: {result.Count}";
             int n = 1;
 
             Console.WriteLine("Outputs:");
-
             if (result.Count == 0)
             {
                 Console.WriteLine("no matched file found");
@@ -103,6 +105,7 @@ public class Program
     {
         while (true)
         {
+            Console.Title = "Settings";
             var _program = new ProgramApi();
             Console.Clear();
             Console.WriteLine("==================Settings==================");
@@ -115,6 +118,7 @@ public class Program
             {
                 case "2":
                     _program.IndexFiles();
+                    Console.Read();
                     break;
                 case "1":
                     ManageDirectoriesApp();
@@ -129,6 +133,7 @@ public class Program
     {
         while (true)
         {
+            Console.Title = "Dirs";
             var _program = new ProgramApi();
             var dirs = _program.ReadAllPathForSearch();
             Console.Clear();

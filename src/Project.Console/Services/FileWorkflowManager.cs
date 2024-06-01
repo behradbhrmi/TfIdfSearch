@@ -40,8 +40,22 @@ public class FileWorkflowManager : IFileWorkflowManager
 
     public void ScanDirectories()
     {
+        Console.WriteLine("> Indexing...");
         foreach (var dir in _paths) ExtractContentRecursively(dir.Address);
         IndexFiles();
+        ShowIndexedFilesInfo();
+    }
+
+    private void ShowIndexedFilesInfo()
+    {
+        var result = FetchFiles().Select(x => x.Path);
+        var count = result.Count();
+        Console.WriteLine($"Indexed Files Count: {count}");
+        if (count == 0)
+            return;
+        int n = 1;
+        foreach (var file in result) { Console.WriteLine($"{n}. {file}"); n++; }
+        Console.WriteLine("> Indexing Finished");
     }
 
     public void IndexFiles()
@@ -55,6 +69,7 @@ public class FileWorkflowManager : IFileWorkflowManager
 
             _context.Files.AddRange(docs.Select(x => new CustomFileModel() { Path = x }));
             _context.SaveChanges();
+            docs.Clear();
         }
     }
 

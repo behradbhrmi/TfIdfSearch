@@ -25,35 +25,53 @@ public class ContentExtractor
 
     public string ReadTextFileContent(CustomFileModel file)
     {
-        return string.Join(" ", File.ReadAllText(file.Path).Split().Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower()));
+        try
+        {
+            return string.Join(" ", File.ReadAllText(file.Path).Split().Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower()));
+        }
+        catch
+        {
+            return "";
+        }
     }
 
     public string ReadPdfFileContent(CustomFileModel file)
     {
         string content = string.Empty;
-
-        using (var pdfDocument = new PdfDocument(new PdfReader(file.Path)))
+        try
         {
-            int totalPages = pdfDocument.GetNumberOfPages();
+            using (var pdfDocument = new PdfDocument(new PdfReader(file.Path)))
+            {
+                int totalPages = pdfDocument.GetNumberOfPages();
 
-            for (int i = 1; i <= totalPages; i++) content += PdfTextExtractor.GetTextFromPage(pdfDocument.GetPage(i));
+                for (int i = 1; i <= totalPages; i++) content += PdfTextExtractor.GetTextFromPage(pdfDocument.GetPage(i));
 
+            }
+            return string.Join(" ", content.Split().Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower()).ToArray());
         }
-        var temp = string.Join(" ", content.Split().Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower()).ToArray());
-
-        return string.Join(" ", content.Split().Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower()).ToArray());
+        catch
+        {
+            return content;
+        }
     }
+
 
     public string ReadXmlFileContent(CustomFileModel file)
     {
         var content = "";
-
-        using (WordprocessingDocument doc = WordprocessingDocument.Open(file.Path, false))
+        try
         {
-            var body = doc.MainDocumentPart?.Document.Body;
-            foreach (var node in body) if (!string.IsNullOrEmpty(node.InnerText)) content += node.InnerText.ToLower() + " ";
+            using (WordprocessingDocument doc = WordprocessingDocument.Open(file.Path, false))
+            {
+                var body = doc.MainDocumentPart?.Document.Body;
+                foreach (var node in body) if (!string.IsNullOrEmpty(node.InnerText)) content += node.InnerText.ToLower() + " ";
+            }
+            return content;
         }
-        return content;
+        catch
+        {
+            return content;
+        }
     }
 
     public string ReadImageFileContent(CustomFileModel file)

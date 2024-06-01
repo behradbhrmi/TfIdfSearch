@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using University.ConsoleApp.DataAccess;
+using University.ConsoleApp.Extensions;
 using University.ConsoleApp.Models;
 
 namespace University.ConsoleApp.Services;
@@ -20,6 +21,7 @@ public static class SearchLocation
     {
         using (var _context = new ApplicationDbContext())
         {
+            dir = dir.StringToPath();
             var existingAddress = _context.Directpries.FirstOrDefault(x => x.Address == dir.ToLower());
             if (existingAddress == null)
             {
